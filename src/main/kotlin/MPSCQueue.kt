@@ -30,15 +30,13 @@ class MPSCQueue<E> {
     fun dequeue(): E? {
         while (true) {
             if (deqIdx >= enqIdx.value) return null
-            val curHead = head
-            val i = deqIdx++
-
-            val s = curHead.findSegment(i)
-            if (s.id > curHead.id) {
+            val idx = deqIdx++
+            val s = head.findSegment(idx)
+            if (s.id > head.id) {
                 head = s
             }
-            if (s.compareAndSet((i % SEGMENT_SIZE).toInt(), null, BROKEN)) continue
-            return s[(i % SEGMENT_SIZE).toInt()] as E
+            if (s.compareAndSet((idx % SEGMENT_SIZE).toInt(), null, BROKEN)) continue
+            return s[(idx % SEGMENT_SIZE).toInt()] as E
         }
     }
 }
