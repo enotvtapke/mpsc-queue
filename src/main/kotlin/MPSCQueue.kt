@@ -17,12 +17,8 @@ class MPSCQueue<E> {
             val curTail = tail.value
             val i = enqIdx.getAndIncrement()
             val s = curTail.findSegment(i)
-            if (s.id > curTail.id) {
-                tail.compareAndSet(curTail, s)
-            }
-            if (s.compareAndSet((i % SEGMENT_SIZE).toInt(), null, element)) {
-                return
-            }
+            if (s.id > curTail.id) tail.compareAndSet(curTail, s)
+            if (s.compareAndSet((i % SEGMENT_SIZE).toInt(), null, element)) return
         }
     }
 
@@ -32,9 +28,7 @@ class MPSCQueue<E> {
             if (deqIdx >= enqIdx.value) return null
             val idx = deqIdx++
             val s = head.findSegment(idx)
-            if (s.id > head.id) {
-                head = s
-            }
+            if (s.id > head.id) head = s
             if (s.compareAndSet((idx % SEGMENT_SIZE).toInt(), null, BROKEN)) continue
             return s[(idx % SEGMENT_SIZE).toInt()] as E
         }
